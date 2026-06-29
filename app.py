@@ -316,11 +316,11 @@ if page == "Player Rankings":
 
     ppg_df = leaderboard.copy()
     ppg_df["PPG"] = (ppg_df[score_col] / ppg_df["Weeks"].clip(lower=1)).round(2)
-    top30 = (
-        ppg_df.groupby("Position", group_keys=False)
-        .apply(lambda g: g.nlargest(max(1, int(len(g) * 0.30)), score_col))
-        .reset_index(drop=True)
-    )
+    top30 = pd.concat([
+        g.nlargest(max(1, int(len(g) * 0.30)), score_col)
+        for _, g in ppg_df.groupby("Position")
+            ]).reset_index(drop=True)
+
     avg_ppg = (
         top30.groupby("Position")
         .agg(avg_ppg_val=("PPG", "mean"), n=("PPG", "count"))
